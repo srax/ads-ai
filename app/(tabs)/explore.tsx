@@ -1,109 +1,159 @@
-import { StyleSheet, Image, Platform } from 'react-native';
+import React, { useState } from 'react';
+import { StyleSheet, ScrollView, View, Text, Image, TouchableOpacity, FlatList } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { Collapsible } from '@/components/Collapsible';
-import { ExternalLink } from '@/components/ExternalLink';
-import ParallaxScrollView from '@/components/ParallaxScrollView';
-import { ThemedText } from '@/components/ThemedText';
-import { ThemedView } from '@/components/ThemedView';
-import { IconSymbol } from '@/components/ui/IconSymbol';
+// Mock data for bookmarked ads
+const MOCK_BOOKMARKED_ADS = [
+  { id: '1', imageUrl: 'https://picsum.photos/400?1', prompt: 'Modern coffee shop advertisement with minimalist design' },
+  { id: '2', imageUrl: 'https://picsum.photos/400?2', prompt: 'Sleek tech product on dark background with blue accent lighting' },
+  { id: '3', imageUrl: 'https://picsum.photos/400?3', prompt: 'Organic food delivery service with fresh vegetables' },
+  { id: '4', imageUrl: 'https://picsum.photos/400?4', prompt: 'Fitness app promotion with motivational quote' },
+];
 
-export default function TabTwoScreen() {
+interface BookmarkedAd {
+  id: string;
+  imageUrl: string;
+  prompt: string;
+}
+
+// BookmarkItem component
+const BookmarkItem = ({ ad, onRemove }: { ad: BookmarkedAd; onRemove: (id: string) => void }) => {
   return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#D0D0D0', dark: '#353636' }}
-      headerImage={
-        <IconSymbol
-          size={310}
-          color="#808080"
-          name="chevron.left.forwardslash.chevron.right"
-          style={styles.headerImage}
+    <View style={styles.bookmarkItem}>
+      <Image source={{ uri: ad.imageUrl }} style={styles.adImage} />
+      <View style={styles.adDetails}>
+        <Text style={styles.adPrompt} numberOfLines={2}>
+          {ad.prompt}
+        </Text>
+        <View style={styles.actionButtons}>
+          <TouchableOpacity style={styles.actionButton}>
+            <Text style={styles.actionIcon}>↓</Text>
+            <Text style={styles.actionText}>Download</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.actionButton}>
+            <Text style={styles.actionIcon}>↗</Text>
+            <Text style={styles.actionText}>Share</Text>
+          </TouchableOpacity>
+          <TouchableOpacity 
+            style={styles.actionButton}
+            onPress={() => onRemove(ad.id)}
+          >
+            <Text style={styles.actionIcon}>✕</Text>
+            <Text style={styles.actionText}>Remove</Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+    </View>
+  );
+};
+
+export default function BookmarksScreen() {
+  const [bookmarkedAds, setBookmarkedAds] = useState<BookmarkedAd[]>(MOCK_BOOKMARKED_ADS);
+
+  const handleRemoveBookmark = (id: string) => {
+    setBookmarkedAds(prev => prev.filter(ad => ad.id !== id));
+  };
+
+  return (
+    <SafeAreaView style={styles.container}>
+      <View style={styles.header}>
+        <Text style={styles.headerTitle}>Bookmarks</Text>
+      </View>
+
+      {bookmarkedAds.length > 0 ? (
+        <FlatList
+          data={bookmarkedAds}
+          keyExtractor={(item) => item.id}
+          renderItem={({ item }) => (
+            <BookmarkItem ad={item} onRemove={handleRemoveBookmark} />
+          )}
+          contentContainerStyle={styles.listContent}
         />
-      }>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Explore</ThemedText>
-      </ThemedView>
-      <ThemedText>This app includes example code to help you get started.</ThemedText>
-      <Collapsible title="File-based routing">
-        <ThemedText>
-          This app has two screens:{' '}
-          <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> and{' '}
-          <ThemedText type="defaultSemiBold">app/(tabs)/explore.tsx</ThemedText>
-        </ThemedText>
-        <ThemedText>
-          The layout file in <ThemedText type="defaultSemiBold">app/(tabs)/_layout.tsx</ThemedText>{' '}
-          sets up the tab navigator.
-        </ThemedText>
-        <ExternalLink href="https://docs.expo.dev/router/introduction">
-          <ThemedText type="link">Learn more</ThemedText>
-        </ExternalLink>
-      </Collapsible>
-      <Collapsible title="Android, iOS, and web support">
-        <ThemedText>
-          You can open this project on Android, iOS, and the web. To open the web version, press{' '}
-          <ThemedText type="defaultSemiBold">w</ThemedText> in the terminal running this project.
-        </ThemedText>
-      </Collapsible>
-      <Collapsible title="Images">
-        <ThemedText>
-          For static images, you can use the <ThemedText type="defaultSemiBold">@2x</ThemedText> and{' '}
-          <ThemedText type="defaultSemiBold">@3x</ThemedText> suffixes to provide files for
-          different screen densities
-        </ThemedText>
-        <Image source={require('@/assets/images/react-logo.png')} style={{ alignSelf: 'center' }} />
-        <ExternalLink href="https://reactnative.dev/docs/images">
-          <ThemedText type="link">Learn more</ThemedText>
-        </ExternalLink>
-      </Collapsible>
-      <Collapsible title="Custom fonts">
-        <ThemedText>
-          Open <ThemedText type="defaultSemiBold">app/_layout.tsx</ThemedText> to see how to load{' '}
-          <ThemedText style={{ fontFamily: 'SpaceMono' }}>
-            custom fonts such as this one.
-          </ThemedText>
-        </ThemedText>
-        <ExternalLink href="https://docs.expo.dev/versions/latest/sdk/font">
-          <ThemedText type="link">Learn more</ThemedText>
-        </ExternalLink>
-      </Collapsible>
-      <Collapsible title="Light and dark mode components">
-        <ThemedText>
-          This template has light and dark mode support. The{' '}
-          <ThemedText type="defaultSemiBold">useColorScheme()</ThemedText> hook lets you inspect
-          what the user's current color scheme is, and so you can adjust UI colors accordingly.
-        </ThemedText>
-        <ExternalLink href="https://docs.expo.dev/develop/user-interface/color-themes/">
-          <ThemedText type="link">Learn more</ThemedText>
-        </ExternalLink>
-      </Collapsible>
-      <Collapsible title="Animations">
-        <ThemedText>
-          This template includes an example of an animated component. The{' '}
-          <ThemedText type="defaultSemiBold">components/HelloWave.tsx</ThemedText> component uses
-          the powerful <ThemedText type="defaultSemiBold">react-native-reanimated</ThemedText>{' '}
-          library to create a waving hand animation.
-        </ThemedText>
-        {Platform.select({
-          ios: (
-            <ThemedText>
-              The <ThemedText type="defaultSemiBold">components/ParallaxScrollView.tsx</ThemedText>{' '}
-              component provides a parallax effect for the header image.
-            </ThemedText>
-          ),
-        })}
-      </Collapsible>
-    </ParallaxScrollView>
+      ) : (
+        <View style={styles.emptyState}>
+          <Text style={styles.emptyStateText}>No bookmarked ads yet</Text>
+          <Text style={styles.emptyStateSubtext}>
+            Your bookmarked ads will appear here. Tap the bookmark icon on any ad to save it.
+          </Text>
+        </View>
+      )}
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  headerImage: {
-    color: '#808080',
-    bottom: -90,
-    left: -35,
-    position: 'absolute',
+  container: {
+    flex: 1,
+    backgroundColor: '#212529',
   },
-  titleContainer: {
+  header: {
+    padding: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: '#444',
+  },
+  headerTitle: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: 'white',
+  },
+  listContent: {
+    padding: 16,
+  },
+  bookmarkItem: {
+    backgroundColor: '#333',
+    borderRadius: 12,
+    marginBottom: 16,
+    overflow: 'hidden',
+  },
+  adImage: {
+    width: '100%',
+    height: 200,
+    backgroundColor: '#222',
+  },
+  adDetails: {
+    padding: 16,
+  },
+  adPrompt: {
+    color: 'white',
+    fontSize: 16,
+    marginBottom: 16,
+  },
+  actionButtons: {
     flexDirection: 'row',
-    gap: 8,
+    justifyContent: 'space-around',
+    borderTopWidth: 1,
+    borderTopColor: '#444',
+    paddingTop: 12,
+  },
+  actionButton: {
+    alignItems: 'center',
+    padding: 8,
+  },
+  actionIcon: {
+    color: 'white',
+    fontSize: 18,
+    marginBottom: 4,
+  },
+  actionText: {
+    color: '#ccc',
+    fontSize: 12,
+  },
+  emptyState: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 32,
+  },
+  emptyStateText: {
+    color: 'white',
+    fontSize: 20,
+    fontWeight: 'bold',
+    marginBottom: 12,
+  },
+  emptyStateSubtext: {
+    color: '#9e9e9e',
+    fontSize: 16,
+    textAlign: 'center',
+    lineHeight: 24,
   },
 });
