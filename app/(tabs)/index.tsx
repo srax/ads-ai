@@ -68,16 +68,24 @@ const GeneratedContent = ({ images, text }: { images: string[], text: string[] }
   return (
     <View style={mockStyles.generatedContentContainer}>
       {images.map((imageUri, index) => (
-        <View key={index} style={mockStyles.generatedImageContainer}>
-          <Image source={{ uri: imageUri }} style={mockStyles.generatedImage} />
+        <View key={`image-${index}`} style={mockStyles.generatedImageContainer}>
+          <Image 
+            source={{ uri: imageUri }} 
+            style={mockStyles.generatedImage} 
+            resizeMode="contain"
+          />
         </View>
       ))}
       
-      {text.map((textContent, index) => (
-        <Text key={`text-${index}`} style={mockStyles.generatedText}>
-          {textContent}
-        </Text>
-      ))}
+      {text.length > 0 && (
+        <View style={mockStyles.generatedTextContainer}>
+          {text.map((textContent, index) => (
+            <Text key={`text-${index}`} style={mockStyles.generatedText}>
+              {textContent}
+            </Text>
+          ))}
+        </View>
+      )}
     </View>
   );
 };
@@ -95,15 +103,23 @@ export default function HomeScreen() {
   const handleGenerateAd = async (prompt: string) => {
     try {
       setIsGenerating(true);
+      console.log("Generating ad with prompt:", prompt);
       
       // Call Gemini service to generate ad content
       const result = await geminiService.generateAdContent(prompt, selectedImage || undefined);
+      console.log("Generation result:", result);
       
       // Update UI with generated content
-      setGeneratedContent({
-        images: result.images,
-        text: result.text
-      });
+      if (result && (result.images.length > 0 || result.text.length > 0)) {
+        setGeneratedContent({
+          images: result.images,
+          text: result.text
+        });
+        console.log("Updated generated content state:", result.images.length, "images,", result.text.length, "text items");
+      } else {
+        console.log("No content was generated");
+        Alert.alert("No Results", "The AI couldn't generate any content for this prompt. Please try again with a different description.");
+      }
     } catch (error) {
       console.error('Error generating ad:', error);
       Alert.alert('Error', 'Failed to generate ad. Please try again.');
@@ -328,13 +344,15 @@ const mockStyles = StyleSheet.create({
     height: 300,
     borderRadius: 12,
   },
+  generatedTextContainer: {
+    padding: 16,
+    backgroundColor: '#333',
+    borderRadius: 12,
+  },
   generatedText: {
     color: 'white',
     fontSize: 16,
     lineHeight: 24,
     marginBottom: 16,
-    padding: 16,
-    backgroundColor: '#333',
-    borderRadius: 12,
   },
 });
