@@ -1,23 +1,24 @@
-import React, { useState } from 'react';
-import { StyleSheet, ScrollView, Alert, View, Text, Image, TouchableOpacity, TextInput } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { StyleSheet, ScrollView, Alert, View, Text, Image, TouchableOpacity, TextInput, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import * as ImagePicker from 'expo-image-picker';
+import geminiService from '../../services/geminiService';
 
 // Define interfaces for component props
 interface ChatInputProps {
-  onSubmit: () => void;
+  onSubmit: (prompt: string) => void;
   onAddImage: () => void;
   isGenerating: boolean;
 }
 
-// Mock components and API service since files were deleted
+// Chat input component for entering prompts
 const ChatInput = ({ onSubmit, onAddImage, isGenerating }: ChatInputProps) => {
   const [prompt, setPrompt] = useState('');
   
   return (
     <View style={mockStyles.inputContainer}>
       <View style={mockStyles.ovalContainer}>
-        <TouchableOpacity onPress={onAddImage} style={mockStyles.addButtonContainer}>
+        <TouchableOpacity onPress={onAddImage} style={mockStyles.addButtonContainer} disabled={isGenerating}>
           <Text style={mockStyles.addButton}>+</Text>
         </TouchableOpacity>
         <TextInput
@@ -27,21 +28,26 @@ const ChatInput = ({ onSubmit, onAddImage, isGenerating }: ChatInputProps) => {
           value={prompt}
           onChangeText={setPrompt}
           multiline={false}
+          editable={!isGenerating}
         />
         <TouchableOpacity 
           onPress={() => {
             if (prompt.trim()) {
-              onSubmit();
+              onSubmit(prompt);
               setPrompt('');
             }
           }}
-          disabled={!prompt.trim()}
+          disabled={!prompt.trim() || isGenerating}
         >
           <View style={[
             mockStyles.generateButton,
-            !prompt.trim() && mockStyles.disabledButton
+            (!prompt.trim() || isGenerating) && mockStyles.disabledButton
           ]}>
-            <Text style={mockStyles.generateText}>Generate Ad</Text>
+            {isGenerating ? (
+              <ActivityIndicator size="small" color="white" />
+            ) : (
+              <Text style={mockStyles.generateText}>Generate Ad</Text>
+            )}
           </View>
         </TouchableOpacity>
       </View>
@@ -49,20 +55,64 @@ const ChatInput = ({ onSubmit, onAddImage, isGenerating }: ChatInputProps) => {
   );
 };
 
-const InspirationScroll = () => (
-  <View style={mockStyles.inspirationContainer}>
-    <Text style={mockStyles.emptyText}>Your generated ads will appear here</Text>
-  </View>
-);
+// Component to display generated ads
+const GeneratedContent = ({ images, text }: { images: string[], text: string[] }) => {
+  if (images.length === 0 && text.length === 0) {
+    return (
+      <View style={mockStyles.inspirationContainer}>
+        <Text style={mockStyles.emptyText}>Your generated ads will appear here</Text>
+      </View>
+    );
+  }
 
-// Mock ad generation screen
+  return (
+    <View style={mockStyles.generatedContentContainer}>
+      {images.map((imageUri, index) => (
+        <View key={index} style={mockStyles.generatedImageContainer}>
+          <Image source={{ uri: imageUri }} style={mockStyles.generatedImage} />
+        </View>
+      ))}
+      
+      {text.map((textContent, index) => (
+        <Text key={`text-${index}`} style={mockStyles.generatedText}>
+          {textContent}
+        </Text>
+      ))}
+    </View>
+  );
+};
+
+// Main ad generation screen
 export default function HomeScreen() {
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [generatedContent, setGeneratedContent] = useState<{
+    images: string[];
+    text: string[];
+  }>({ images: [], text: [] });
 
-  const handleGenerateAd = () => {
-    Alert.alert('Generate Ad', 'Ad generation functionality would go here');
+  // Handle ad generation
+  const handleGenerateAd = async (prompt: string) => {
+    try {
+      setIsGenerating(true);
+      
+      // Call Gemini service to generate ad content
+      const result = await geminiService.generateAdContent(prompt, selectedImage || undefined);
+      
+      // Update UI with generated content
+      setGeneratedContent({
+        images: result.images,
+        text: result.text
+      });
+    } catch (error) {
+      console.error('Error generating ad:', error);
+      Alert.alert('Error', 'Failed to generate ad. Please try again.');
+    } finally {
+      setIsGenerating(false);
+    }
   };
 
+  // Handle adding an image
   const handleAddImage = async () => {
     // Request permissions
     const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
@@ -82,7 +132,6 @@ export default function HomeScreen() {
     
     if (!result.canceled && result.assets && result.assets.length > 0) {
       setSelectedImage(result.assets[0].uri);
-      Alert.alert('Image Selected', 'Image has been selected and will be used for ad generation.');
     }
   };
 
@@ -109,24 +158,29 @@ export default function HomeScreen() {
             <TouchableOpacity 
               style={mockStyles.removeButton}
               onPress={() => setSelectedImage(null)}
+              disabled={isGenerating}
             >
               <Text style={mockStyles.removeButtonText}>✕</Text>
             </TouchableOpacity>
           </View>
         )}
         
-        <InspirationScroll />
+        <GeneratedContent 
+          images={generatedContent.images} 
+          text={generatedContent.text} 
+        />
       </ScrollView>
 
       <ChatInput
         onSubmit={handleGenerateAd}
         onAddImage={handleAddImage}
-        isGenerating={false}
+        isGenerating={isGenerating}
       />
     </SafeAreaView>
   );
 }
 
+// Main app styles
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -143,7 +197,7 @@ const styles = StyleSheet.create({
   },
 });
 
-// Styles for our mock components
+// Styles for our components
 const mockStyles = StyleSheet.create({
   inputContainer: {
     padding: 16,
@@ -191,6 +245,8 @@ const mockStyles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 8,
     marginLeft: 8,
+    height: 36,
+    justifyContent: 'center',
   },
   disabledButton: {
     opacity: 0.5,
@@ -257,5 +313,28 @@ const mockStyles = StyleSheet.create({
   removeButtonText: {
     color: 'white',
     fontSize: 16,
+  },
+  generatedContentContainer: {
+    marginVertical: 16,
+  },
+  generatedImageContainer: {
+    marginBottom: 16,
+    borderRadius: 12,
+    overflow: 'hidden',
+    alignItems: 'center',
+  },
+  generatedImage: {
+    width: '100%',
+    height: 300,
+    borderRadius: 12,
+  },
+  generatedText: {
+    color: 'white',
+    fontSize: 16,
+    lineHeight: 24,
+    marginBottom: 16,
+    padding: 16,
+    backgroundColor: '#333',
+    borderRadius: 12,
   },
 });
