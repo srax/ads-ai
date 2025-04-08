@@ -16,24 +16,6 @@ class GeminiService {
   constructor() {
     console.log("Initializing GeminiService with API key:", GEMINI_API_KEY ? "API key present" : "API key missing");
     this.ai = new GoogleGenAI({ apiKey: GEMINI_API_KEY });
-    
-    // Simple test to check if API key is valid
-    this.testApiConnection();
-  }
-
-  // Test the API connection
-  private async testApiConnection() {
-    try {
-      const textModel = this.ai.models("gemini-1.5-flash");
-      const testRes = await textModel.generateContent("Hello");
-      console.log("API connection test successful");
-    } catch (error) {
-      console.error("API connection test failed:", error);
-      Alert.alert(
-        "API Connection Error", 
-        "Could not connect to Gemini API. Please check your internet connection and API key."
-      );
-    }
   }
 
   /**
