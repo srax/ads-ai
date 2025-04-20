@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { StyleSheet, ScrollView, Alert, View, Text, Image, TouchableOpacity, TextInput, ActivityIndicator, KeyboardAvoidingView, Platform, Keyboard, TouchableWithoutFeedback } from 'react-native';
+import { StyleSheet, ScrollView, Alert, View, Text, Image, TouchableOpacity, TextInput, ActivityIndicator, KeyboardAvoidingView, Platform, Keyboard, TouchableWithoutFeedback, FlatList, Dimensions } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import * as ImagePicker from 'expo-image-picker';
 import geminiService from '../../services/geminiService';
@@ -100,6 +100,84 @@ interface ChatMessage {
   images?: string[];
   userImage?: string;
 }
+
+// Interface for gallery items
+interface GalleryItem {
+  id: string;
+  imageUrl: string;
+}
+
+// Updated Pinterest-style gallery with consistent image sizes
+const PinterestGallery = () => {
+  // Sample data - replace with your actual image data
+  const galleryItems: GalleryItem[] = [
+    { id: '1', imageUrl: 'https://picsum.photos/600/800?1' },
+    { id: '2', imageUrl: 'https://picsum.photos/600/800?2' },
+    { id: '3', imageUrl: 'https://picsum.photos/600/800?3' },
+    { id: '4', imageUrl: 'https://picsum.photos/600/800?4' },
+    { id: '5', imageUrl: 'https://picsum.photos/600/800?5' },
+    { id: '6', imageUrl: 'https://picsum.photos/600/800?6' },
+  ];
+
+  const renderItem = ({ item }: { item: GalleryItem }) => (
+    <TouchableOpacity style={styles.galleryItem}>
+      <Image 
+        source={{ uri: item.imageUrl }} 
+        style={styles.galleryImage}
+        resizeMode="cover"
+      />
+    </TouchableOpacity>
+  );
+
+  return (
+    <View style={styles.galleryContainer}>
+      <FlatList
+        data={galleryItems}
+        keyExtractor={(item) => item.id}
+        renderItem={renderItem}
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        contentContainerStyle={styles.galleryList}
+      />
+    </View>
+  );
+};
+
+// Second horizontal gallery with consistent image sizes
+const SecondGallery = () => {
+  // Sample data - replace with your actual image data
+  const galleryItems: GalleryItem[] = [
+    { id: '1', imageUrl: 'https://picsum.photos/600/800?7' },
+    { id: '2', imageUrl: 'https://picsum.photos/600/800?8' },
+    { id: '3', imageUrl: 'https://picsum.photos/600/800?9' },
+    { id: '4', imageUrl: 'https://picsum.photos/600/800?10' },
+    { id: '5', imageUrl: 'https://picsum.photos/600/800?11' },
+    { id: '6', imageUrl: 'https://picsum.photos/600/800?12' },
+  ];
+
+  const renderItem = ({ item }: { item: GalleryItem }) => (
+    <TouchableOpacity style={styles.galleryItem}>
+      <Image 
+        source={{ uri: item.imageUrl }} 
+        style={styles.galleryImage}
+        resizeMode="cover"
+      />
+    </TouchableOpacity>
+  );
+
+  return (
+    <View style={styles.galleryContainer}>
+      <FlatList
+        data={galleryItems}
+        keyExtractor={(item) => item.id}
+        renderItem={renderItem}
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        contentContainerStyle={styles.galleryList}
+      />
+    </View>
+  );
+};
 
 // Main ad generation screen
 export default function HomeScreen() {
@@ -246,13 +324,14 @@ export default function HomeScreen() {
               keyboardVisible && { paddingBottom: 10 }
             ]}
           >
+            {/* First Pinterest Gallery */}
+            <PinterestGallery />
+            
+            {/* Second Gallery */}
+            <SecondGallery />
+            
             {chatMessages.length === 0 ? (
-              <View style={chatStyles.welcomeContainer}>
-                <Text style={chatStyles.welcomeText}>Welcome to Ads.ai</Text>
-                <Text style={chatStyles.subText}>
-                  Describe the ad you want to create. You can also add images for reference.
-                </Text>
-              </View>
+              null
             ) : (
               chatMessages.map(message => (
                 message.type === 'user' ? (
@@ -280,25 +359,27 @@ export default function HomeScreen() {
           </ScrollView>
         </TouchableWithoutFeedback>
 
-        <View style={styles.selectedImagePreview}>
-          {selectedImage && (
-            <View style={chatStyles.previewContainer}>
-              <Image source={{ uri: selectedImage }} style={chatStyles.previewImage} />
-              <TouchableOpacity 
-                style={chatStyles.removePreviewButton}
-                onPress={() => setSelectedImage(null)}
-              >
-                <Text style={chatStyles.removeButtonText}>✕</Text>
-              </TouchableOpacity>
-            </View>
-          )}
-        </View>
+        <View style={styles.bottomContainer}>
+          <View style={styles.selectedImagePreview}>
+            {selectedImage && (
+              <View style={chatStyles.previewContainer}>
+                <Image source={{ uri: selectedImage }} style={chatStyles.previewImage} />
+                <TouchableOpacity 
+                  style={chatStyles.removePreviewButton}
+                  onPress={() => setSelectedImage(null)}
+                >
+                  <Text style={chatStyles.removeButtonText}>✕</Text>
+                </TouchableOpacity>
+              </View>
+            )}
+          </View>
 
-        <ChatInput
-          onSubmit={handleGenerateAd}
-          onAddImage={handleAddImage}
-          isGenerating={isGenerating}
-        />
+          <ChatInput
+            onSubmit={handleGenerateAd}
+            onAddImage={handleAddImage}
+            isGenerating={isGenerating}
+          />
+        </View>
       </SafeAreaView>
     </KeyboardAvoidingView>
   );
@@ -325,16 +406,46 @@ const styles = StyleSheet.create({
   scrollView: {
     flex: 1,
     backgroundColor: '#001219',
+    marginBottom: 0,
   },
   scrollContent: {
     flexGrow: 1,
     padding: 16,
-    paddingBottom: 24,
+    paddingBottom: 100, // Increased padding to account for the repositioned tab bar
+  },
+  bottomContainer: {
+    backgroundColor: '#002233',
+    paddingTop: 0,
+    marginTop: -1,
+    paddingBottom: 70, // Add padding at bottom to prevent content from being hidden by the tab bar
+    position: 'relative',
+    zIndex: 1, // Ensure it's above the tab bar
   },
   selectedImagePreview: {
     padding: 8,
     paddingBottom: 0,
-    backgroundColor: '#001219',
+    paddingTop: 0,
+    backgroundColor: '#002233',
+  },
+  galleryContainer: {
+    marginBottom: 12, // Reduced margin
+    height: 150, // Smaller fixed height
+  },
+  galleryList: {
+    paddingRight: 16,
+  },
+  galleryItem: {
+    width: 150, // Consistent width
+    height: 120, // Consistent height
+    marginRight: 12,
+    borderRadius: 16, // Curved edges
+    overflow: 'hidden',
+    backgroundColor: '#002233',
+  },
+  galleryImage: {
+    width: '100%',
+    height: '100%',
+    borderRadius: 16, // Ensure image has same curved edges
   },
 });
 
@@ -361,16 +472,14 @@ const chatStyles = StyleSheet.create({
   inputContainer: {
     padding: 8,
     paddingTop: 6,
-    paddingBottom: 26,
-    backgroundColor: '#001219',
-    borderTopWidth: 2,
-    borderTopColor: '#002233',
-    marginBottom: 30, // Add this new line
+    paddingBottom: 8,
+    backgroundColor: '#002233',
+    marginBottom: 0,
   },
   ovalContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#002233',
+    backgroundColor: '#003344',
     borderRadius: 24,
     padding: 8,
   },
@@ -382,7 +491,7 @@ const chatStyles = StyleSheet.create({
     fontSize: 20,
     width: 40,
     height: 40,
-    backgroundColor: '#003344',
+    backgroundColor: '#004455',
     borderRadius: 20,
     textAlign: 'center',
     lineHeight: 34,
