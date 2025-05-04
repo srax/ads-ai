@@ -1,78 +1,52 @@
-import React, { useState } from 'react';
-import { StyleSheet, ScrollView, View, Text, Image, TouchableOpacity, FlatList } from 'react-native';
+import React from 'react';
+import { StyleSheet, View, Text, Image, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-
-// Mock data for bookmarked ads
-const MOCK_BOOKMARKED_ADS = [
-  { id: '1', imageUrl: 'https://picsum.photos/400?1', prompt: 'Modern coffee shop advertisement with minimalist design' },
-  { id: '2', imageUrl: 'https://picsum.photos/400?2', prompt: 'Sleek tech product on dark background with blue accent lighting' },
-  { id: '3', imageUrl: 'https://picsum.photos/400?3', prompt: 'Organic food delivery service with fresh vegetables' },
-  { id: '4', imageUrl: 'https://picsum.photos/400?4', prompt: 'Fitness app promotion with motivational quote' },
-];
-
-interface BookmarkedAd {
-  id: string;
-  imageUrl: string;
-  prompt: string;
-}
-
-// BookmarkItem component
-const BookmarkItem = ({ ad, onRemove }: { ad: BookmarkedAd; onRemove: (id: string) => void }) => {
-  return (
-    <View style={styles.bookmarkItem}>
-      <Image source={{ uri: ad.imageUrl }} style={styles.adImage} />
-      <View style={styles.adDetails}>
-        <Text style={styles.adPrompt} numberOfLines={2}>
-          {ad.prompt}
-        </Text>
-        <View style={styles.actionButtons}>
-          <TouchableOpacity style={styles.actionButton}>
-            <Text style={styles.actionIcon}>↓</Text>
-            <Text style={styles.actionText}>Download</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.actionButton}>
-            <Text style={styles.actionIcon}>↗</Text>
-            <Text style={styles.actionText}>Share</Text>
-          </TouchableOpacity>
-          <TouchableOpacity 
-            style={styles.actionButton}
-            onPress={() => onRemove(ad.id)}
-          >
-            <Text style={styles.actionIcon}>✕</Text>
-            <Text style={styles.actionText}>Remove</Text>
-          </TouchableOpacity>
-        </View>
-      </View>
-    </View>
-  );
-};
+import { LucideIcon } from '@/components/LucideIcons';
 
 export default function BookmarksScreen() {
-  const [bookmarkedAds, setBookmarkedAds] = useState<BookmarkedAd[]>(MOCK_BOOKMARKED_ADS);
+  // Mock functions for button actions
+  const handleDownload = () => {
+    console.log('Download button pressed');
+  };
 
-  const handleRemoveBookmark = (id: string) => {
-    setBookmarkedAds(prev => prev.filter(ad => ad.id !== id));
+  const handleShare = () => {
+    console.log('Share button pressed');
+  };
+
+  const handleDelete = () => {
+    console.log('Delete button pressed');
   };
 
   return (
     <SafeAreaView style={styles.container}>
-      {bookmarkedAds.length > 0 ? (
-        <FlatList
-          data={bookmarkedAds}
-          keyExtractor={(item) => item.id}
-          renderItem={({ item }) => (
-            <BookmarkItem ad={item} onRemove={handleRemoveBookmark} />
-          )}
-          contentContainerStyle={styles.listContent}
-        />
-      ) : (
-        <View style={styles.emptyState}>
-          <Text style={styles.emptyStateText}>No bookmarked ads yet</Text>
-          <Text style={styles.emptyStateSubtext}>
-            Your bookmarked ads will appear here. Tap the bookmark icon on any ad to save it.
-          </Text>
+      <View style={styles.content}>
+        {/* Mockup Image */}
+        <View style={styles.imageContainer}>
+          <Image 
+            source={{ uri: 'https://picsum.photos/800/1000' }} 
+            style={styles.image}
+            resizeMode="cover"
+          />
         </View>
-      )}
+        
+        {/* Action Buttons */}
+        <View style={styles.actionsContainer}>
+          <TouchableOpacity style={styles.actionButton} onPress={handleDownload}>
+            <LucideIcon name="download" size={28} color="#FFFFFF" />
+            <Text style={styles.actionText}>Save</Text>
+          </TouchableOpacity>
+          
+          <TouchableOpacity style={styles.actionButton} onPress={handleShare}>
+            <LucideIcon name="share" size={28} color="#FFFFFF" />
+            <Text style={styles.actionText}>Share</Text>
+          </TouchableOpacity>
+          
+          <TouchableOpacity style={styles.actionButton} onPress={handleDelete}>
+            <LucideIcon name="remove" size={28} color="#FFFFFF" />
+            <Text style={styles.actionText}>Delete</Text>
+          </TouchableOpacity>
+        </View>
+      </View>
     </SafeAreaView>
   );
 }
@@ -82,67 +56,44 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#000000',
   },
-  listContent: {
-    padding: 16,
-    paddingBottom: 100,
-  },
-  bookmarkItem: {
-    backgroundColor: '#000000',
-    borderRadius: 12,
-    marginBottom: 16,
-    overflow: 'hidden',
-    borderWidth: 1,
-    borderColor: '#333',
-  },
-  adImage: {
-    width: '100%',
-    height: 200,
-    backgroundColor: '#000000',
-  },
-  adDetails: {
-    padding: 16,
-  },
-  adPrompt: {
-    color: 'white',
-    fontSize: 16,
-    marginBottom: 16,
-  },
-  actionButtons: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    borderTopWidth: 1,
-    borderTopColor: '#333',
-    paddingTop: 12,
-  },
-  actionButton: {
-    alignItems: 'center',
-    padding: 8,
-  },
-  actionIcon: {
-    color: 'white',
-    fontSize: 18,
-    marginBottom: 4,
-  },
-  actionText: {
-    color: '#ccc',
-    fontSize: 12,
-  },
-  emptyState: {
+  content: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    padding: 32,
+    padding: 20,
   },
-  emptyStateText: {
-    color: 'white',
-    fontSize: 20,
-    fontWeight: 'bold',
-    marginBottom: 12,
+  imageContainer: {
+    width: '100%',
+    height: '75%',
+    borderRadius: 20,
+    overflow: 'hidden',
+    elevation: 5,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
+    backgroundColor: '#111',
   },
-  emptyStateSubtext: {
-    color: '#9e9e9e',
-    fontSize: 16,
-    textAlign: 'center',
-    lineHeight: 24,
+  image: {
+    width: '100%',
+    height: '100%',
+  },
+  actionsContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    width: '100%',
+    paddingVertical: 20,
+    paddingHorizontal: 10,
+    marginTop: 20,
+  },
+  actionButton: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 10,
+  },
+  actionText: {
+    color: '#FFFFFF',
+    marginTop: 8,
+    fontSize: 14,
   },
 });

@@ -3,6 +3,9 @@ import {
   Home, 
   Grid2X2, 
   Bookmark,
+  ArrowDownToLine,
+  Share2,
+  X,
   // Add other icons you need here
 } from 'lucide-react-native';
 import { SvgProps } from 'react-native-svg';
@@ -12,6 +15,9 @@ const icons = {
   home: Home,
   grid: Grid2X2,
   bookmark: Bookmark,
+  download: ArrowDownToLine,
+  share: Share2,
+  remove: X,
   // Add other icons you need here
 };
 
