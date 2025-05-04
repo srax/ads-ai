@@ -156,10 +156,6 @@ const FeedScreen = () => {
 
   return (
     <SafeAreaView style={styles.container}>
-      <View style={styles.header}>
-        <Text style={styles.headerTitle}>Feed</Text>
-      </View>
-      
       <FlatList
         data={columnData}
         renderItem={renderColumn}
@@ -177,19 +173,7 @@ const FeedScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#001219',
-  },
-  header: {
-    padding: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: '#002233',
-    backgroundColor: '#001219',
-  },
-  headerTitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: 'white',
-    textAlign: 'center',
+    backgroundColor: '#000000',
   },
   feedList: {
     padding: 8,
@@ -205,7 +189,7 @@ const styles = StyleSheet.create({
     width: COLUMN_WIDTH,
     borderRadius: 16,
     overflow: 'hidden',
-    backgroundColor: '#002233',
+    backgroundColor: '#000000',
     marginBottom: 16,
     position: 'relative',
   },
@@ -225,7 +209,7 @@ const styles = StyleSheet.create({
     right: 0,
     bottom: 0,
     borderRadius: 16,
-    backgroundColor: 'rgba(52, 152, 219, 0.7)',
+    backgroundColor: 'rgba(0, 0, 0, 0.85)',
     justifyContent: 'center',
     alignItems: 'center',
     overflow: 'hidden',
@@ -248,12 +232,12 @@ const styles = StyleSheet.create({
   },
   promptText: {
     color: '#fff',
-    fontSize: 18,
+    fontSize: 16,
     textAlign: 'center',
-    fontWeight: 'bold',
+    lineHeight: 24,
     textShadowColor: 'rgba(0, 0, 0, 0.5)',
     textShadowOffset: { width: 1, height: 1 },
-    textShadowRadius: 3,
+    textShadowRadius: 2,
   },
 });
 

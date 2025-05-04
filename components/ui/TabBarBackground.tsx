@@ -5,7 +5,7 @@ export default function SolidTabBarBackground() {
     <View
       style={[
         StyleSheet.absoluteFill,
-        { backgroundColor: '#002233' }
+        { backgroundColor: '#000000' }
       ]}
     />
   );

@@ -15,11 +15,12 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Code Style
 - Use functional components with TypeScript interfaces for props
 - Prefer named exports for components
-- Use interface definitions for complex types
-- Include JSDoc comments in service files
-- Handle errors with try/catch blocks including console logging
+- Use type/interface definitions for props and complex types
+- Include JSDoc comments in service files with param/return documentation
+- Handle errors with try/catch blocks including detailed console logging
 - Extract styles to separate StyleSheet objects using StyleSheet.create()
-- Order imports: React first, then external libraries, then local components/services
+- Order imports: React first, then external libraries, then local imports (@/ paths)
 - Follow platform-specific patterns with .ios.tsx and .tsx file variations
 - Use custom themed components for consistent styling across the app
-- Implement singleton pattern for services
+- Implement singleton pattern for services with private methods
+- Write snapshot tests for UI components using jest-expo

@@ -56,10 +56,6 @@ export default function BookmarksScreen() {
 
   return (
     <SafeAreaView style={styles.container}>
-      <View style={styles.header}>
-        <Text style={styles.headerTitle}>Bookmarks</Text>
-      </View>
-
       {bookmarkedAds.length > 0 ? (
         <FlatList
           data={bookmarkedAds}
@@ -84,32 +80,24 @@ export default function BookmarksScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#212529',
-  },
-  header: {
-    padding: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: '#444',
-  },
-  headerTitle: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: 'white',
+    backgroundColor: '#000000',
   },
   listContent: {
     padding: 16,
     paddingBottom: 100,
   },
   bookmarkItem: {
-    backgroundColor: '#333',
+    backgroundColor: '#000000',
     borderRadius: 12,
     marginBottom: 16,
     overflow: 'hidden',
+    borderWidth: 1,
+    borderColor: '#333',
   },
   adImage: {
     width: '100%',
     height: 200,
-    backgroundColor: '#222',
+    backgroundColor: '#000000',
   },
   adDetails: {
     padding: 16,
@@ -123,7 +111,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-around',
     borderTopWidth: 1,
-    borderTopColor: '#444',
+    borderTopColor: '#333',
     paddingTop: 12,
   },
   actionButton: {
