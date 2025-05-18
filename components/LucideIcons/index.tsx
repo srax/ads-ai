@@ -6,6 +6,7 @@ import {
   ArrowDownToLine,
   Share2,
   X,
+  TreePine,
   // Add other icons you need here
 } from 'lucide-react-native';
 import { SvgProps } from 'react-native-svg';
@@ -18,6 +19,7 @@ const icons = {
   download: ArrowDownToLine,
   share: Share2,
   remove: X,
+  tree: TreePine,
   // Add other icons you need here
 };
 

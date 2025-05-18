@@ -57,6 +57,13 @@ export default function TabLayout() {
           tabBarIcon: ({ color }) => <LucideIcon name="bookmark" size={24} color={color} />,
         }}
       />
+      <Tabs.Screen
+        name="lawn"
+        options={{
+          title: 'Lawn',
+          tabBarIcon: ({ color }) => <LucideIcon name="tree" size={24} color={color} />,
+        }}
+      />
     </Tabs>
   );
 }
